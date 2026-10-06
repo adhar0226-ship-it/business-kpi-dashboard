@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business KPI Dashboard - Customer Churn & Revenue Risk</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .header { background-color: #1a365d; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 14px; }
+        .kpi-container { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .kpi-card { background: white; flex: 1; min-width: 200px; padding: 18px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #2b5c8f; }
+        .kpi-title { font-size: 13px; color: #718096; font-weight: 600; text-transform: uppercase; }
+        .kpi-value { font-size: 24px; font-weight: bold; color: #1a202c; margin: 8px 0 4px 0; }
+        .kpi-sub { font-size: 12px; color: #4a5568; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .chart-card h3 { margin-top: 0; color: #2b5c8f; font-size: 16px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px; }
+        .insight { font-size: 12px; color: #4a5568; margin-top: 10px; background: #ebf8ff; padding: 8px 12px; border-radius: 4px; border-left: 3px solid #3182ce; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Business KPI Dashboard</h1>
+    <p>Customer Churn, Revenue Risk, and Segment Analysis | Dataset: N=15</p>
+</div>
+
+<div class="kpi-container">
+    <div class="kpi-card" style="border-left-color: #d9534f;">
+        <div class="kpi-title">Churn Rate</div>
+        <div class="kpi-value">46.67%</div>
+        <div class="kpi-sub">7 out of 15 customers lost</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: #2b5c8f;">
+        <div class="kpi-title">Retention Rate</div>
+        <div class="kpi-value">53.33%</div>
+        <div class="kpi-sub">8 active long-term accounts</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: #e53e3e;">
+        <div class="kpi-title">Revenue at Risk (MRR)</div>
+        <div class="kpi-value">₹409.93</div>
+        <div class="kpi-sub">32.3% of total monthly charges</div>
+    </div>
+    <div class="kpi-card" style="border-left-color: #319795;">
+        <div class="kpi-title">Avg Tenure (Retained)</div>
+        <div class="kpi-value">29.13 mos</div>
+        <div class="kpi-sub">vs 7.0 mos for churned group</div>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="chart-card">
+        <h3>1. Churn Rate Distribution</h3>
+        <canvas id="churnPieChart"></canvas>
+        <div class="insight"><b>Written Insight:</b> Retained customers make up 53.3% of the customer base, while 46.7% churned within the observation window.</div>
+    </div>
+
+    <div class="chart-card">
+        <h3>2. Monthly Revenue (MRR) by Contract Type</h3>
+        <canvas id="mrrBarChart"></canvas>
+        <div class="insight"><b>Written Insight:</b> 100% of lost MRR (₹409.93) belongs to Month-to-Month contracts. Annual contracts protect ₹859.92/mo.</div>
+    </div>
+
+    <div class="chart-card">
+        <h3>3. Customer Count by Payment Method & Churn</h3>
+        <canvas id="paymentChart"></canvas>
+        <div class="insight"><b>Written Insight:</b> UPI and Debit Card users demonstrate extreme churn risk (100% churn on UPI), whereas Bank Transfers have 0% churn.</div>
+    </div>
+
+    <div class="chart-card">
+        <h3>4. Support Ticket Volume vs Churn</h3>
+        <canvas id="ticketChart"></canvas>
+        <div class="insight"><b>Written Insight:</b> Customers logging ≥3 support tickets churned 100% of the time, signaling operational friction as the primary churn trigger.</div>
+    </div>
+</div>
+
+<script>
+    // 1. Pie Chart
+    new Chart(document.getElementById('churnPieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Retained (8)', 'Churned (7)'],
+            datasets: [{ data: [8, 7], backgroundColor: ['#2b5c8f', '#d9534f'] }]
+        }
+    });
+
+    // 2. MRR Bar Chart
+    new Chart(document.getElementById('mrrBarChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Month-to-Month', 'One Year', 'Two Year'],
+            datasets: [
+                { label: 'Retained MRR (₹)', data: [0, 259.96, 599.96], backgroundColor: '#2b5c8f' },
+                { label: 'Churned / At-Risk MRR (₹)', data: [409.93, 0, 0], backgroundColor: '#d9534f' }
+            ]
+        },
+        options: { scales: { x: { stacked: true }, y: { stacked: true } } }
+    });
+
+    // 3. Payment Method Chart
+    new Chart(document.getElementById('paymentChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Bank Transfer', 'Credit Card', 'Debit Card', 'UPI'],
+            datasets: [
+                { label: 'Retained', data: [3, 4, 0, 1], backgroundColor: '#2b5c8f' },
+                { label: 'Churned', data: [0, 2, 2, 3], backgroundColor: '#d9534f' }
+            ]
+        }
+    });
+
+    // 4. Ticket Chart
+    new Chart(document.getElementById('ticketChart'), {
+        type: 'bar',
+        data: {
+            labels: ['0 Tickets', '1 Ticket', '2 Tickets', '3 Tickets', '4 Tickets', '5 Tickets', '6 Tickets'],
+            datasets: [
+                { label: 'Retained', data: [2, 4, 2, 0, 0, 0, 0], backgroundColor: '#2b5c8f' },
+                { label: 'Churned', data: [0, 0, 0, 2, 2, 2, 1], backgroundColor: '#d9534f' }
+            ]
+        }
+    });
+</script>
+
+</body>
